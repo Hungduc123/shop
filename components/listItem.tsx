@@ -17,26 +17,47 @@ import {
   FontAwesome5,
   Entypo,
   Foundation,
+  Ionicons,
 } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { removeList, addList } from "../slice/List";
+import { removeList, addList, editList } from "../slice/List";
 import { chooseItem } from "../slice/chooseItem";
 import { useLocation } from "react-router";
 import { useHistory } from "react-router-dom";
 import { addCartList, editItem } from "../slice/cart";
+// import { user } from "../slice/userSlice";
+
 import { imageCurrentChoose } from "../slice/imageCurrentChoose";
+import { addOrEdit } from "../slice/addOrEdit";
+import dataItem from "../data/dataItem";
+import User from "../data/user";
+import { login } from "../slice/loginSlice";
+import {
+  Container,
+  Header,
+  Content,
+  Footer,
+  FooterTab,
+  Button,
+  Icon,
+} from "native-base";
+import { addCartListSelected, buyOneItem } from "../slice/cartSelected";
 
 function listItem() {
   const history = useHistory();
   const location = useLocation<any>();
-  const isAdmin = useSelector((state: any) => state.login.isAdmin);
+  const user = useSelector((state: any) => state.login);
+  const isAdmin = user.isAdmin;
   const [openItem, setOpenItem] = useState<boolean>(false);
 
   const dispatch = useDispatch();
 
   const itemChoosed = useSelector((state: any) => state.chooseItem);
   const list = useSelector((state: any) => state.List);
-  const cart = useSelector((state: any) => state.cart);
+  const listCart = useSelector((state: any) => state.Cart);
+
+  console.log(listCart);
+  const image = useSelector((state: any) => state.imageCurrentChoose);
   const onPressItem = (item: any) => {
     setOpenItem(true);
     const action = chooseItem({
@@ -46,6 +67,7 @@ function listItem() {
       img: item.img,
       detail: item.detail,
       money: item.money,
+      count: item.count,
     });
 
     console.log({ action });
@@ -59,7 +81,8 @@ function listItem() {
     dispatch(action);
   };
   const addCart = (item: any) => {
-    const itemIndex = cart.findIndex(cart.key === item.key);
+    const isLargeNumber = (element: dataItem) => element.key === item.key;
+    const itemIndex = listCart.findIndex(isLargeNumber);
     if (itemIndex >= 0) {
       Alert.alert("you are already add to cart", "Do you want continue ??", [
         {
@@ -70,17 +93,17 @@ function listItem() {
           text: "OK",
           onPress: () => {
             const newItem = {
-              key: item.key,
-              name: item.name,
-              description: item.description,
-              img: item.img,
-              detail: item.detail,
-              // ...item,
+              ...item,
               count: parseInt(item.count) + 1,
             };
 
             const action = editItem(newItem);
             dispatch(action);
+            const action1 = editList(newItem);
+            dispatch(action1);
+            console.log("newItem------------------");
+
+            console.log(newItem);
           },
         },
       ]);
@@ -94,8 +117,10 @@ function listItem() {
     }
   };
   const edit = (item: any) => {
-    const actionPushImage = imageCurrentChoose(item.img);
+    const actionPushImage = imageCurrentChoose({ img: item.img });
+    console.log(actionPushImage);
     dispatch(actionPushImage);
+
     const action = chooseItem({
       key: item.key,
       name: item.name,
@@ -103,50 +128,68 @@ function listItem() {
       img: item.img,
       detail: item.detail,
       money: item.money,
+      count: item.count,
     });
     dispatch(action);
     console.log(item);
-    history.push({ pathname: "/addItem", state: { isAdd: false } });
+
+    const action1 = addOrEdit({ isAdd: false });
+    dispatch(action1);
+    history.push("/addItem");
+  };
+  const logout = (user: User) => {
+    const action = login({
+      userName: "",
+      passWord: "",
+      email: "",
+      fullName: "",
+      isAdmin: false,
+    });
+
+    console.log({ action });
+    dispatch(action);
+    history.push("/login");
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity
-        style={{ margin: 10 }}
-        onPress={() => {
-          history.push("/login");
-        }}
-      >
-        <FontAwesome5 name="window-close" size={30} color="black" />
-      </TouchableOpacity>
-      {isAdmin && (
-        <>
-          <Text>
-            your are {useSelector((state: any) => state.login.fullName)}
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              history.push({ pathname: "/addItem", state: { isAdd: true } });
-            }}
-          >
-            <Entypo name="add-to-list" size={24} color="black" />
-          </TouchableOpacity>
-        </>
-      )}
-      {!isAdmin && (
-        <>
-          <Text>
-            your are {useSelector((state: any) => state.login.fullName)}
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              history.push("/cart");
-            }}
-          >
-            <AntDesign name="shoppingcart" size={24} color="black" />
-          </TouchableOpacity>
-        </>
-      )}
+      <View>
+        {isAdmin ? (
+          <View>
+            <Text>your are {user.fullName}</Text>
+            <TouchableOpacity
+              onPress={() => {
+                // history.push({ pathname: "/addItem", state: { isAdd: true } });
+                history.push("/addItem");
+                const action = addOrEdit({ isAdd: true });
+                dispatch(action);
+              }}
+            >
+              <Entypo name="add-to-list" size={24} color="black" />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            <Text>your are {user.fullName}</Text>
+            <TouchableOpacity
+              onPress={() => {
+                history.push("/cart");
+              }}
+            >
+              <AntDesign name="shoppingcart" size={40} color="black" />
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
+      <View style={{ flexDirection: "row" }}>
+        <TouchableOpacity style={{ flex: 1 }} onPress={() => logout(user)}>
+          <AntDesign name="logout" size={40} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => history.push("/Profile")}>
+          <Ionicons name="ios-person-circle-outline" size={40} color="black" />
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={list}
         keyExtractor={(item) => item.key.toString()}
@@ -188,8 +231,23 @@ function listItem() {
                 <View>
                   <TouchableOpacity
                     onPress={() => {
-                      removeItem(item);
-                      console.log({ item });
+                      Alert.alert(
+                        "Notification",
+                        "Do you want delete item from list ??",
+                        [
+                          {
+                            text: "Cancel",
+
+                            style: "cancel",
+                          },
+                          {
+                            text: "OK",
+                            onPress: () => {
+                              removeItem(item);
+                            },
+                          },
+                        ]
+                      );
                     }}
                     style={{ flex: 1 }}
                   >
@@ -212,6 +270,7 @@ function listItem() {
           </ScrollView>
         )}
       ></FlatList>
+
       {openItem && (
         <Modal animationType="slide" transparent={false} visible={openItem}>
           <View
@@ -240,10 +299,31 @@ function listItem() {
               source={{ uri: itemChoosed.img }}
             />
 
-            <Text>{itemChoosed.name}</Text>
-            <View style={{ flexDirection: "row" }}>
-              <FontAwesome5 name="money-check-alt" size={24} color="black" />
-              <AntDesign name="shoppingcart" size={24} color="black" />
+            <Text style={styles.text}>{itemChoosed.name}</Text>
+            <View style={{ flexDirection: "row", padding: 20 }}>
+              <TouchableOpacity
+                onPress={() => {
+                  const action = addCartListSelected(itemChoosed);
+                  dispatch(action);
+                  const action1 = buyOneItem(itemChoosed.key);
+                  dispatch(action1);
+                  history.push("/buy");
+                }}
+                style={{ flex: 1 }}
+              >
+                <FontAwesome5 name="money-check-alt" size={40} color="black" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  // const action = addCartList(itemChoosed);
+                  // dispatch(action);
+                  addCart(itemChoosed);
+                  console.log("itemChoosed");
+                  console.log(itemChoosed);
+                }}
+              >
+                <AntDesign name="shoppingcart" size={40} color="black" />
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>

@@ -4,6 +4,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    padding: 10,
   },
   checkbox: {
     alignSelf: "center",
@@ -15,6 +16,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     backgroundColor: "#ADDFFF",
     borderRadius: 30,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    backgroundColor: "black",
+  },
+  text: {
+    fontSize: 30,
   },
 });
 export default styles;

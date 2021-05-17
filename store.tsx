@@ -6,6 +6,8 @@ import addListReducer from "./slice/List";
 import imageCurrentChooseReducer from "./slice/imageCurrentChoose";
 import CartSelectedReducer from "./slice/cartSelected";
 import addCartReducer from "./slice/cart";
+import addOrEditReducer from "./slice/addOrEdit";
+import myPurchasesReducer from "./slice/myPurchases";
 const rootReducer = {
   login: loginReducer,
   chooseItem: chooseItemReducer,
@@ -13,6 +15,8 @@ const rootReducer = {
   imageCurrentChoose: imageCurrentChooseReducer,
   Cart: addCartReducer,
   CartSelected: CartSelectedReducer,
+  addOrEdit: addOrEditReducer,
+  myPurchases: myPurchasesReducer,
 };
 const store = configureStore({
   reducer: rootReducer,

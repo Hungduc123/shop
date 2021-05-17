@@ -5,6 +5,7 @@ interface User{
     email?:string;
     fullName?:String;
     isAdmin?: boolean,
+    address?:string
  
     
     }

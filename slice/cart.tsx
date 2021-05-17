@@ -1,32 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import dataItem from "../data/dataItem";
 
-// var dataCartList: dataItem[] = [];
+var dataCartList: dataItem[] = [];
 
 const cart = createSlice({
   name: "cart",
-  initialState: [
-    {
-      key: "2",
-      name: "B",
-      description: "BBB",
-      img: "https://cdn.nguyenkimmall.com/images/companies/1/000000000010012474-bo-ly.jpg",
-      detail: "this is B",
-
-      count: 1,
-      money: 1000,
-    },
-    {
-      key: "3",
-      name: "B",
-      description: "BBB",
-      img: "https://cdn.nguyenkimmall.com/images/companies/1/000000000010012474-bo-ly.jpg",
-      detail: "this is B",
-
-      count: 1,
-      money: 1000,
-    },
-  ],
+  initialState: dataCartList,
 
   reducers: {
     addCartList: (state, action) => {
@@ -46,8 +25,29 @@ const cart = createSlice({
         state[itemIndex] = newItem;
       }
     },
+    checkBox: (state, action) => {
+      const newItem = action.payload;
+      const itemIndex = state.findIndex(
+        (List) => List.key === action.payload.key
+      );
+      if (itemIndex >= 0) {
+        state[itemIndex] = newItem;
+      }
+    },
+    removeAfterBuy: (state, action) => {
+      state = state.filter(
+        (ar) => !action.payload.find((rm: dataItem) => rm.key === ar.key)
+      );
+      return state;
+    },
   },
 });
 const { reducer, actions } = cart;
-export const { addCartList, removeCartList, editItem } = actions;
+export const {
+  addCartList,
+  removeCartList,
+  editItem,
+  checkBox,
+  removeAfterBuy,
+} = actions;
 export default reducer;

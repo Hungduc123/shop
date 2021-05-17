@@ -1,11 +1,12 @@
 interface Item {
-  key: String;
-  name: String;
-  description: String;
-  img: String;
-  detail: String;
+  key: string;
+  name: string;
+  description: string;
+  img: string;
+  detail: string;
   count: number;
-  money: number;
+  money: string;
+  isChecked: boolean;
 }
 
 export default Item;

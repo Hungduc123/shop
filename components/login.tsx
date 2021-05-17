@@ -21,8 +21,8 @@ import { login } from "../slice/loginSlice";
 function Login() {
   const history = useHistory<object>();
   const dispatch = useDispatch();
-  const [userName, setUserName] = useState<String>("");
-  const [passWord, setPassWord] = useState<String>("");
+  const [userName, setUserName] = useState<string>("");
+  const [passWord, setPassWord] = useState<string>("");
 
   const CheckLogin = async () => {
     try {

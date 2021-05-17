@@ -1,131 +1,106 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  View,
-  Text,
   FlatList,
   SafeAreaView,
-  TouchableOpacity,
-  Image,
   ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+  Image,
 } from "react-native";
-import CheckBox from "@react-native-community/checkbox";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../styles/styles";
-import { AntDesign } from "@expo/vector-icons";
-import { editItem, removeCartList } from "../slice/cart";
-import { addCartListSelected, removeListSelected } from "../slice/cartSelected";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useHistory } from "react-router-dom";
+import dataItem from "../data/dataItem";
+import { removeAll } from "../slice/cartSelected";
+import { removeAfterBuy } from "../slice/cart";
+import { addMyPurchases } from "../slice/myPurchases";
 
 function buy() {
+  const history = useHistory();
+  const dispatch = useDispatch();
+  const listBuy = useSelector((state: any) => state.CartSelected);
+  const listCart = useSelector((state: any) => state.Cart);
+
+  const user = useSelector((state: any) => state.login);
+  const Total = (listBuy: Array<dataItem>): number => {
+    return listBuy.reduce(
+      (accumulator: number, currentValue: dataItem): number =>
+        accumulator + parseInt(currentValue.money) * currentValue.count,
+      0
+    );
+  };
+  const total: number = Total(listBuy);
+  let name: string;
+  function myFunction(item: any) {
+    name += item.fullName + ", ";
+  }
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Cartt</Text>
+      <Text>Buy</Text>
       <TouchableOpacity
+        style={{ flex: 1 }}
         onPress={() => {
-          history.push("/listItem");
+          history.push("/cart");
         }}
       >
-        <Ionicons name="arrow-back-circle" size={24} color="black" />
+        <Ionicons name="arrow-back-circle" size={40} color="black" />
       </TouchableOpacity>
+      <View style={{ position: "absolute", left: 50, top: 100 }}>
+        <Text>{user.fullName}</Text>
+        <Text>{user.email}</Text>
+      </View>
       <FlatList
-        data={listCart}
+        data={listBuy}
         keyExtractor={(item) => item.key.toString()}
         renderItem={({ item }) => (
           <ScrollView>
             <View
               style={{
-                flex: 1,
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "center",
-                padding: 50,
+                padding: 10,
               }}
             >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <TouchableOpacity style={{}} onPress={() => choose(item)}>
-                  {isCheck && (
-                    <MaterialCommunityIcons
-                      name="checkbox-blank-outline"
-                      size={24}
-                      color="black"
-                    />
-                  )}
-                  {!isCheck && (
-                    <Ionicons name="checkbox-outline" size={24} color="black" />
-                  )}
-                </TouchableOpacity>
-
-                {/* <CheckBox
-                    value={isSelected}
-                    onValueChange={(value) => {
-                      setSelection(value);
-                      if (isSelected) {
-                        const action = addCartListSelected(item);
-                        dispatch(action);
-                      } else {
-                        const action = removeListSelected(item.key);
-                        dispatch(action);
-                      }
-                    }}
-                    style={styles.checkbox}
-                  /> */}
-
-                <Image
-                  source={{ uri: item.img }}
-                  style={{ width: 100, height: 100, backgroundColor: "black" }}
-                />
-                <View style={{ flex: 1 }}>
-                  <Text>{item.name}</Text>
-                  <Text>{item.description}</Text>
-                </View>
-              </View>
-              <View style={{ flexDirection: "row" }}>
-                <TouchableOpacity
-                  onPress={() => {
-                    // let newItem = item;
-                    // newItem.count = item.count + 1;
-                    const newItem = {
-                      key: item.key,
-                      name: item.name,
-                      description: item.description,
-                      img: item.img,
-                      detail: item.detail,
-                      isChecked: item.isChecked,
-                      count: parseInt(item.count) + 1,
-                    };
-
-                    const action = editItem(newItem);
-                    dispatch(action);
-                    console.log(count);
-                  }}
-                >
-                  <AntDesign name="plussquareo" size={24} color="black" />
-                </TouchableOpacity>
-                <Text>{item.count} aaaaa</Text>
-                <TouchableOpacity>
-                  <AntDesign name="minussquareo" size={24} color="black" />
-                </TouchableOpacity>
-              </View>
-
-              <TouchableOpacity
-                onPress={() => {
-                  removeItem(item);
-                }}
-              >
-                <AntDesign name="delete" size={24} color="black" />
-              </TouchableOpacity>
+              <Image
+                source={{ uri: item.img }}
+                style={{ width: 100, height: 100 }}
+              />
+              <Text>
+                {item.name}x{item.count}
+              </Text>
             </View>
           </ScrollView>
         )}
       ></FlatList>
+      <View style={{ flexDirection: "row" }}>
+        <Text>{total}</Text>
+      </View>
+      <TouchableOpacity
+        onPress={() => {
+          alert("buy complete");
+
+          const action1 = removeAfterBuy(listBuy);
+          dispatch(action1);
+          const action = removeAll("111");
+          dispatch(action);
+          //           var sum = 0;
+          // var numbers = [65, 44, 12, 4];
+          listBuy.forEach(myFunction);
+
+          // const action2=addMyPurchases({
+          //   time: "12h30m",
+          //   Total: total,
+          //   Name: [],
+
+          // })
+          // dispatch(action2);
+        }}
+      >
+        <FontAwesome5 name="money-check-alt" size={24} color="black" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }

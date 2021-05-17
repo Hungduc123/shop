@@ -16,16 +16,20 @@ import styles from "../styles/styles";
 function addItem() {
   const history = useHistory();
   const location = useLocation<any>();
-  const isAdd = location.state.isAdd;
+  // const isAdd = location.state.isAdd;
+  const isAdd = useSelector((state: any) => state.addOrEdit.isAdd);
+  console.log("isAdd");
+
+  console.log(isAdd);
   const itemChoosed = useSelector((state: any) => state.chooseItem);
 
   const [nameItem, setNameItem] = useState<string>(
     isAdd ? "" : itemChoosed.name
   );
-  const [descriptionItem, setDescriptionItem] = useState<String>(
+  const [descriptionItem, setDescriptionItem] = useState<string>(
     isAdd ? "" : itemChoosed.description
   );
-  const [detailItem, setDetailItem] = useState<String>(
+  const [detailItem, setDetailItem] = useState<string>(
     isAdd ? "" : itemChoosed.detail
   );
 
@@ -36,6 +40,9 @@ function addItem() {
   const image = useSelector((state: any) => state.imageCurrentChoose);
   const list = useSelector((state: any) => state.List);
   const dispatch = useDispatch();
+  console.log("img");
+
+  console.log(image.img);
 
   const buttonClick = () => {
     if (isAdd) {
@@ -71,6 +78,8 @@ function addItem() {
         detail: detailItem,
         money: moneyItem,
       };
+      console.log("newItem");
+
       console.log(newItem);
 
       const action = editList(newItem);
@@ -113,8 +122,7 @@ function addItem() {
           <FontAwesome5 name="window-close" size={30} color="black" />
         </TouchableOpacity>
       </View>
-      {isAdd && <Text>add new Item</Text>}
-      {!isAdd && <Text>edit Item</Text>}
+      <Text> {isAdd ? "add" : "edit"} Item </Text>
 
       <TextInput
         textAlign="center"
@@ -130,7 +138,7 @@ function addItem() {
         style={styles.input}
         placeholderTextColor="gray"
         placeholder="add description"
-        value={isAdd ? descriptionItem : itemChoosed.description}
+        value={descriptionItem}
       />
       <TextInput
         textAlign="center"
@@ -138,13 +146,22 @@ function addItem() {
         style={styles.input}
         placeholderTextColor="gray"
         placeholder="add price"
-        value={isAdd ? moneyItem : itemChoosed.money}
+        value={moneyItem}
       />
+      {/* <TextInput
+        textAlign="center"
+        onChangeText={(Value) => setMoneyItem(Value)}
+        style={styles.input}
+        placeholderTextColor="gray"
+        placeholder="add price"
+        value={moneyItem}
+      /> */}
+
       <TextInput
         textAlign="center"
         onChangeText={(Value) => setDetailItem(Value)}
         style={styles.input}
-        value={isAdd ? detailItem : itemChoosed.detail}
+        value={detailItem}
         placeholderTextColor="gray"
         placeholder="add detail"
         editable

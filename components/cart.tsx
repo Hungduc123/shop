@@ -9,52 +9,90 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import CheckBox from "@react-native-community/checkbox";
+
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../styles/styles";
 import { AntDesign } from "@expo/vector-icons";
-import { editItem, removeCartList } from "../slice/cart";
-import { addCartListSelected, removeListSelected } from "../slice/cartSelected";
+import { checkBox, editItem, removeCartList } from "../slice/cart";
+import {
+  addCartListSelected,
+  removeListSelected,
+  updateItem,
+} from "../slice/cartSelected";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { useHistory } from "react-router-dom";
+import dataItem from "../data/dataItem";
 
 function cart() {
   const history = useHistory();
   const dispatch = useDispatch();
   const listCart = useSelector((state: any) => state.Cart);
-  const [isSelected, setSelection] = useState<boolean>(false);
-  const [isCheck, setChecked] = useState<boolean>(false);
-  let [count, setCount] = useState<number>(0);
+  const listBuy = useSelector((state: any) => state.CartSelected);
+  console.log("listCart");
 
+  console.log(listCart);
+  console.log("listBuy");
+
+  console.log(listBuy);
+
+  const listSelected = useSelector((state: any) => state.CartSelected);
   const removeItem = (item: any) => {
     const removeItemId = item.key;
     const action = removeCartList(removeItemId);
+    const action1 = removeListSelected(removeItemId);
+
     dispatch(action);
+    dispatch(action1);
   };
   const choose = (item: any) => {
-    setChecked(!isCheck);
-    if (isCheck) {
+    if (!item.isCheck) {
       const action = addCartListSelected(item);
-
       dispatch(action);
+      console.log("add");
+      console.log(item);
     } else {
       const action = removeListSelected(item.key);
       dispatch(action);
-      console.log(action);
+      console.log("remove");
+      console.log(item);
     }
+    const newItem = {
+      ...item,
+      isCheck: !item.isCheck,
+    };
+
+    const action = checkBox(newItem);
+    dispatch(action);
+    console.log(newItem);
   };
+  const Total = (listSelected: Array<dataItem>): number => {
+    return listSelected.reduce(
+      (accumulator: number, currentValue: dataItem): number =>
+        accumulator + parseInt(currentValue.money) * currentValue.count,
+      0
+    );
+  };
+  const total: number = Total(listSelected);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Cart</Text>
-      <TouchableOpacity
-        onPress={() => {
-          history.push("/listItem");
-        }}
-      >
-        <Ionicons name="arrow-back-circle" size={24} color="black" />
-      </TouchableOpacity>
+      <Text>Shopping Cart</Text>
+
+      <View style={{ flexDirection: "row" }}>
+        <TouchableOpacity
+          style={{ flex: 1 }}
+          onPress={() => history.push("/listItem")}
+        >
+          <Ionicons name="arrow-back-circle" size={40} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => history.push("/buy")}>
+          <FontAwesome5 name="money-check-alt" size={40} color="black" />
+        </TouchableOpacity>
+      </View>
+      {listCart.length === 0 && (
+        <Text style={styles.text}>Your cart are empty</Text>
+      )}
       <FlatList
         data={listCart}
         keyExtractor={(item) => item.key.toString()}
@@ -77,14 +115,14 @@ function cart() {
                 }}
               >
                 <TouchableOpacity style={{}} onPress={() => choose(item)}>
-                  {isCheck && (
+                  {!item.isCheck && (
                     <MaterialCommunityIcons
                       name="checkbox-blank-outline"
                       size={24}
                       color="black"
                     />
                   )}
-                  {!isCheck && (
+                  {item.isCheck && (
                     <Ionicons name="checkbox-outline" size={24} color="black" />
                   )}
                 </TouchableOpacity>
@@ -96,25 +134,21 @@ function cart() {
                 <View style={{ flex: 1 }}>
                   <Text>{item.name}</Text>
                   <Text>{item.description}</Text>
-                  <Text>{item.money}</Text>
+                  <Text>{parseInt(item.money) * item.count}</Text>
                 </View>
               </View>
               <View style={{ flexDirection: "row" }}>
                 <TouchableOpacity
                   onPress={() => {
                     const newItem = {
-                      key: item.key,
-                      name: item.name,
-                      description: item.description,
-                      img: item.img,
-                      detail: item.detail,
-
-                      count: parseInt(item.count) + 1,
+                      ...item,
+                      count: item.count + 1,
                     };
 
                     const action = editItem(newItem);
                     dispatch(action);
-                    console.log(count);
+                    const action1 = updateItem(newItem);
+                    dispatch(action1);
                   }}
                 >
                   <AntDesign name="plussquareo" size={24} color="black" />
@@ -125,7 +159,7 @@ function cart() {
                     let temp = parseInt(item.count) - 1;
                     if (temp <= 0) {
                       Alert.alert(
-                        "The number of item is 0",
+                        "The number of item is one",
                         "Do you want delete item from list cart??",
                         [
                           {
@@ -135,30 +169,31 @@ function cart() {
                           },
                           {
                             text: "OK",
-                            onPress: () =>
-                              //   history.push({ pathname: "/Home", state: capturedPhoto }),
-                              {
-                                const removeItemId = item.key;
-                                const action = removeCartList(removeItemId);
-                                dispatch(action);
-                              },
+                            onPress: () => {
+                              const removeItemId = item.key;
+                              const action = removeCartList(removeItemId);
+                              dispatch(action);
+                              const action1 = removeListSelected(removeItemId);
+                              dispatch(action1);
+                            },
                           },
                         ]
                       );
                     } else {
                       const newItem = {
-                        key: item.key,
-                        name: item.name,
-                        description: item.description,
-                        img: item.img,
-                        detail: item.detail,
-
+                        // key: item.key,
+                        // name: item.name,
+                        // description: item.description,
+                        // img: item.img,
+                        // detail: item.detail,
+                        ...item,
                         count: temp,
                       };
 
                       const action = editItem(newItem);
                       dispatch(action);
-                      console.log(count);
+                      const action1 = updateItem(newItem);
+                      dispatch(action1);
                     }
                   }}
                 >
@@ -177,6 +212,7 @@ function cart() {
           </ScrollView>
         )}
       ></FlatList>
+      <Text>{total}</Text>
     </SafeAreaView>
   );
 }

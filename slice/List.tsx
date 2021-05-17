@@ -9,7 +9,8 @@ var dataItemlist = [
     img: "https://tracu.com.vn/wp-content/uploads/2018/05/am-thuy-binh.png",
     detail: "this is A",
     count: 1,
-    money: 1000,
+    money: "1000",
+    isCheck: false,
   },
   {
     key: "2",
@@ -18,7 +19,8 @@ var dataItemlist = [
     img: "https://cdn.nguyenkimmall.com/images/companies/1/000000000010012474-bo-ly.jpg",
     detail: "this is B",
     count: 1,
-    money: 2000,
+    money: "2000",
+    isCheck: false,
   },
   {
     key: "3",
@@ -27,7 +29,8 @@ var dataItemlist = [
     img: "https://mucinthanhdat.com/image/cache/catalog/sanpham/ly-su/ly-vien-mau-500x500.jpg",
     detail: "this is C",
     count: 1,
-    money: 3000,
+    money: "3000",
+    isCheck: false,
   },
 ];
 

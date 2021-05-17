@@ -9,6 +9,7 @@ const slice = createSlice({
     img: "",
     detail: "",
     money: "",
+    count: 1,
   },
 
   reducers: {
@@ -19,6 +20,7 @@ const slice = createSlice({
       state.img = action.payload.img;
       state.detail = action.payload.detail;
       state.money = action.payload.money;
+      state.count = action.payload.count;
     },
   },
 });
